@@ -1,0 +1,64 @@
+name: Windows x64
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      prepare_release:
+        type: boolean
+        default: false
+        description: Create a draft release for the existing v1.0.0 tag
+
+permissions:
+  contents: read
+
+jobs:
+  build-test-package:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.401
+      - name: Install build-time tools
+        shell: pwsh
+        run: choco install -y --no-progress ffmpeg innosetup
+      - name: Build native renderer
+        shell: pwsh
+        run: ./scripts/build-native.ps1
+      - name: Restore locked project dependencies
+        shell: pwsh
+        run: dotnet restore OVRIX.slnx --locked-mode
+      - name: Run Windows tests
+        shell: pwsh
+        run: ./scripts/test.ps1 -Media
+      - name: Create installer and portable package
+        shell: pwsh
+        run: ./scripts/package.ps1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: OVRIX-1.0.0-win-x64
+          path: artifacts/release/*
+          if-no-files-found: error
+  release-draft:
+    if: github.event_name == 'workflow_dispatch' && inputs.prepare_release
+    needs: build-test-package
+    runs-on: windows-2025
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v1.0.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: OVRIX-1.0.0-win-x64
+          path: artifacts/release
+      - name: Prepare GitHub release draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          if (git rev-parse HEAD | Where-Object { $_ -ne "${{ github.sha }}" }) { throw 'Run this workflow for tag v1.0.0.' }
+          gh release create v1.0.0 (Get-ChildItem artifacts/release -File).FullName --verify-tag --draft --title 'OVRIX 1.0.0' --notes-file CHANGELOG.md
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
