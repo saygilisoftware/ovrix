@@ -1,0 +1,20 @@
+cmake_minimum_required(VERSION 3.25)
+project(OvrixNative VERSION 1.0.0 LANGUAGES CXX)
+find_program(OVRIX_FXC NAMES fxc REQUIRED)
+set(shader_source "${CMAKE_CURRENT_SOURCE_DIR}/motion.hlsl")
+set(shader_headers)
+foreach(shader IN ITEMS Estimate Compose)
+    set(header "${CMAKE_CURRENT_BINARY_DIR}/${shader}.h")
+    add_custom_command(OUTPUT "${header}"
+        COMMAND "${OVRIX_FXC}" /nologo /O3 /T cs_5_0 /E "${shader}" /Vn "shader${shader}" /Fh "${header}" "${shader_source}"
+        DEPENDS "${shader_source}"
+        VERBATIM)
+    list(APPEND shader_headers "${header}")
+endforeach()
+add_library(ovrix_gpu SHARED gpu.cpp ${shader_headers})
+target_include_directories(ovrix_gpu PRIVATE "${CMAKE_CURRENT_BINARY_DIR}")
+target_compile_features(ovrix_gpu PRIVATE cxx_std_20)
+target_compile_definitions(ovrix_gpu PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
+target_compile_options(ovrix_gpu PRIVATE /W4 /EHsc)
+set_property(TARGET ovrix_gpu PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+target_link_libraries(ovrix_gpu PRIVATE d3d11 dxgi)
