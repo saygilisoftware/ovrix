@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/apps/" />
+  <Folder Name="/apps/desktop/">
+    <Project Path="apps/desktop/Ovrix.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Ovrix.Tests.csproj" />
+  </Folder>
+</Solution>
