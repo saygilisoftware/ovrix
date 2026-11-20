@@ -1,0 +1,146 @@
+<Window x:Class="Ovrix.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="OVRIX" Width="1370" Height="820" MinWidth="960" MinHeight="660" Icon="ovrix.ico"
+        WindowStartupLocation="CenterScreen" Background="{StaticResource Base}" FontFamily="Segoe UI"
+        Foreground="{StaticResource Text}" PreviewKeyDown="OnKey" Closing="OnClosing">
+    <Grid x:Name="Root" Background="{StaticResource Base}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="SidebarColumn" Width="212"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition x:Name="DetailsColumn" Width="329"/>
+        </Grid.ColumnDefinitions>
+        <Border x:Name="Sidebar" Background="#0D151D" BorderBrush="#202F3B" BorderThickness="0,0,1,0">
+            <DockPanel LastChildFill="True" Margin="16,27,16,18">
+                <StackPanel DockPanel.Dock="Top" Margin="6,0,0,31">
+                    <StackPanel Orientation="Horizontal">
+                        <Viewbox Width="30" Height="28" Margin="0,0,13,0">
+                            <Canvas Width="34" Height="32">
+                                <Path Data="{StaticResource BrandRing}" Fill="{StaticResource Accent}"/>
+                                <Path Data="{StaticResource BrandCut}" Fill="#21A496"/>
+                            </Canvas>
+                        </Viewbox>
+                        <TextBlock Text="OVRIX" FontSize="24" FontWeight="Black" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Text="Play Beyond Limits." Foreground="{StaticResource Muted}" Margin="0,12,0,0" FontSize="12"/>
+                </StackPanel>
+                <StackPanel DockPanel.Dock="Bottom">
+                    <Border BorderBrush="#21303D" BorderThickness="0,1,0,0" Margin="4,0,4,9"/>
+                    <TextBlock Margin="8,4,0,3" Text="OVRIX 1.0.0" Foreground="{StaticResource Muted}" FontSize="11"/>
+                </StackPanel>
+                <StackPanel x:Name="Navigation"/>
+            </DockPanel>
+        </Border>
+        <Grid x:Name="Center" Grid.Column="1" Margin="27,24,24,21">
+            <Grid.RowDefinitions>
+                <RowDefinition x:Name="HeaderRow" Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition x:Name="FooterRow" Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid x:Name="Header" Margin="0,0,0,18">
+                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock x:Name="TitleText" FontSize="32" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="SourceText" Margin="1,4,11,0" Foreground="{StaticResource Muted}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="FullscreenButton" Click="ToggleFullscreen" Margin="0,0,8,0"/>
+                    <Button x:Name="PlayButton" Click="TogglePlayback" Style="{StaticResource Primary}"/>
+                </StackPanel>
+            </Grid>
+            <Border x:Name="PreviewBorder" Grid.Row="1" CornerRadius="13" Background="#05090C"
+                    BorderBrush="{StaticResource Stroke}" BorderThickness="1" ClipToBounds="True">
+                <Grid x:Name="VideoArea" SizeChanged="VideoAreaResized">
+                    <Image x:Name="Video" Stretch="Uniform" SnapsToDevicePixels="True"/>
+                    <Grid x:Name="EmptyState" ClipToBounds="True">
+                        <Grid.Background>
+                            <RadialGradientBrush Center=".47,.40" GradientOrigin=".42,.30" RadiusX=".75" RadiusY=".85">
+                                <GradientStop Color="#17323F" Offset="0"/>
+                                <GradientStop Color="#0B1825" Offset=".54"/>
+                                <GradientStop Color="#071018" Offset="1"/>
+                            </RadialGradientBrush>
+                        </Grid.Background>
+                        <Rectangle Opacity=".42" IsHitTestVisible="False">
+                            <Rectangle.Fill>
+                                <DrawingBrush TileMode="Tile" Viewport="0,0,32,32" ViewportUnits="Absolute"
+                                              Viewbox="0,0,32,32" ViewboxUnits="Absolute" Stretch="None">
+                                    <DrawingBrush.Drawing>
+                                        <GeometryDrawing Brush="Transparent" Geometry="M 0,0 H 32 V 32 H 0 Z">
+                                            <GeometryDrawing.Pen><Pen Brush="#203748" Thickness="1"/></GeometryDrawing.Pen>
+                                        </GeometryDrawing>
+                                    </DrawingBrush.Drawing>
+                                </DrawingBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <Grid IsHitTestVisible="False" Margin="19">
+                            <Path Data="M 0,19 V 0 H 19" Stroke="#507080" StrokeThickness="1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                            <Path Data="M 0,0 H 19 V 19" Stroke="#507080" StrokeThickness="1" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+                            <Path Data="M 0,0 V 19 H 19" Stroke="#507080" StrokeThickness="1" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+                            <Path Data="M 0,19 H 19 V 0" Stroke="#507080" StrokeThickness="1" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                        </Grid>
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="31">
+                            <Grid Width="150" Height="124" HorizontalAlignment="Center" IsHitTestVisible="False">
+                                <Ellipse Width="121" Height="107" RenderTransformOrigin=".5,.5" Opacity=".5">
+                                    <Ellipse.Fill>
+                                        <RadialGradientBrush>
+                                            <GradientStop Color="#38A0B3"/>
+                                            <GradientStop Color="#0038A0B3" Offset="1"/>
+                                        </RadialGradientBrush>
+                                    </Ellipse.Fill>
+                                    <Ellipse.RenderTransform><ScaleTransform x:Name="StageGlow"/></Ellipse.RenderTransform>
+                                </Ellipse>
+                                <Ellipse Width="130" Height="104" Stroke="#416576" StrokeThickness="1" StrokeDashArray="2,5"/>
+                                <Ellipse Width="106" Height="87" Stroke="#245260" StrokeThickness="1"/>
+                                <Viewbox Width="60" Height="58" RenderTransformOrigin=".5,.5">
+                                    <Viewbox.RenderTransform><TranslateTransform x:Name="StageLogo"/></Viewbox.RenderTransform>
+                                    <Canvas Width="34" Height="32">
+                                        <Path Data="{StaticResource BrandRing}" Fill="{StaticResource Accent}"/>
+                                        <Path Data="{StaticResource BrandCut}" Fill="#21A496"/>
+                                    </Canvas>
+                                </Viewbox>
+                            </Grid>
+                            <TextBlock x:Name="EmptyTitle" Margin="0,11,0,8" FontSize="26" FontWeight="SemiBold" TextAlignment="Center"/>
+                            <TextBlock x:Name="EmptyCopy" Foreground="{StaticResource Muted}" FontSize="14" LineHeight="21"
+                                       TextAlignment="Center" MaxWidth="365"/>
+                            <Button x:Name="EmptyButton" HorizontalAlignment="Center" Margin="0,21,0,0" Click="OpenCapture" Padding="17,9"/>
+                        </StackPanel>
+                    </Grid>
+                    <Canvas x:Name="Captions" IsHitTestVisible="False" ClipToBounds="True">
+                        <Rectangle x:Name="OriginalMask" Fill="#050505" Visibility="Collapsed"/>
+                        <Border x:Name="SubtitleBox" Visibility="Collapsed" CornerRadius="7" Padding="11,5">
+                            <Grid><TextBlock x:Name="SubtitleStroke" TextAlignment="Center"/>
+                                  <TextBlock x:Name="SubtitleText" TextAlignment="Center"/></Grid>
+                        </Border>
+                    </Canvas>
+                    <Canvas x:Name="RegionCanvas" Visibility="Collapsed" Background="#19000000"
+                            MouseLeftButtonDown="RegionDown" MouseMove="RegionMove" MouseLeftButtonUp="RegionUp">
+                        <Rectangle x:Name="SelectionRect" Stroke="{StaticResource Accent}" StrokeThickness="2" Fill="#3369EBD5" IsHitTestVisible="False"/>
+                    </Canvas>
+                    <Canvas x:Name="OverlayEditCanvas" Visibility="Collapsed" Background="#19000000"
+                            MouseLeftButtonDown="OverlayDown" MouseMove="OverlayMove" MouseLeftButtonUp="OverlayUp"/>
+                    <Border x:Name="LiveBadge" Visibility="Collapsed" HorizontalAlignment="Left" VerticalAlignment="Top"
+                            Background="#E6142428" CornerRadius="5" Padding="8,4" Margin="12" IsHitTestVisible="False">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse x:Name="LiveDot" Width="6" Height="6" Fill="{StaticResource Accent}" Margin="1,0,7,0"/>
+                            <TextBlock x:Name="LiveText" Foreground="{StaticResource Accent}" FontSize="11" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+            <StackPanel x:Name="Footer" Grid.Row="2" Margin="0,15,0,0">
+                <UniformGrid Columns="4" x:Name="MetricCards"/>
+                <TextBlock x:Name="StatusText" Margin="1,10,0,0" Foreground="{StaticResource Muted}"
+                           FontSize="12" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"/>
+            </StackPanel>
+        </Grid>
+        <Border x:Name="Details" Grid.Column="2" Background="{StaticResource Panel}" BorderBrush="#202E34" BorderThickness="1,0,0,0">
+            <DockPanel Margin="20,28,16,12">
+                <Border DockPanel.Dock="Top" BorderBrush="{StaticResource Stroke}" BorderThickness="0,0,0,1" Margin="0,0,0,14" Padding="1,0,0,17">
+                    <TextBlock x:Name="PanelTitle" FontSize="20" FontWeight="SemiBold"/>
+                </Border>
+                <ScrollViewer x:Name="PanelScroll" VerticalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="PanelBody" Margin="1,0,7,10"/>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>
